@@ -108,6 +108,7 @@ footer{text-align:center;color:var(--mute);padding:10px 16px 30px;font-size:13px
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🗺️%3C/text%3E%3C/svg%3E"><meta name="description" content="বাংলাদেশের পর্যটন কেন্দ্র, মানচিত্র ও ভ্রমণ কার্ড"></head><body><script>
+if(!CanvasRenderingContext2D.prototype.roundRect){CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){r=Math.min(typeof r==='number'?r:(r&&r[0])||0,w/2,h/2);this.moveTo(x+r,y);this.arcTo(x+w,y,x+w,y+h,r);this.arcTo(x+w,y+h,x,y+h,r);this.arcTo(x,y+h,x,y,r);this.arcTo(x,y,x+w,y,r);this.closePath();return this}}
 /* ===== এখানে Firebase-এর config বসাও (README দেখো) ===== */
 const FIREBASE_CONFIG={apiKey:"AIzaSyCLzXrxU-ovx-WC3hlE8J65g6x-AqBiSyc",authDomain:"ghurbo-bangladesh-dbcb8.firebaseapp.com",projectId:"ghurbo-bangladesh-dbcb8",storageBucket:"ghurbo-bangladesh-dbcb8.firebasestorage.app",messagingSenderId:"947032176236",appId:"1:947032176236:web:f6f54a5be4e691ad658a49"};
 /* ========================================================= */
@@ -372,10 +373,10 @@ function glContact(){const n=$2('gl_note');n.hidden=false;n.textContent='ছব�
 function glNoDb(){glSnap={docs:[]};glRender();$2('gl_form').hidden=true;glContact()}
 function dlShow(c,nm,f){const u=c.toDataURL(f==='jpg'?'image/jpeg':'image/png',.92),ext=f==='jpg'?'.jpg':'.png';$2('dl_i').src=u;const a=$2('dl_a');a.href=u;a.download=nm+ext;$2('dlb').hidden=false;$2('dl_x').onclick=()=>$2('dlb').hidden=true;
  $2('dl_s').onclick=async()=>{try{const bs=atob(u.split(',')[1]),ar=new Uint8Array(bs.length);for(let i=0;i<bs.length;i++)ar[i]=bs.charCodeAt(i);const file=new File([ar],nm+ext,{type:f==='jpg'?'image/jpeg':'image/png'});if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({files:[file],title:'আমার ভ্রমণ কার্ড'});else toast('এই ডিভাইসে শেয়ার চালু নেই, ছবি চেপে ধরে সেভ করো')}catch(e){if(!e||e.name!=='AbortError')toast('শেয়ার হয়নি, ছবি চেপে ধরে সেভ করো')}}}
-async function deliver(c,f,nm){let dl=null;try{dl=await claude.use('downloads')}catch(e){}
+async function deliver(c,f,nm){if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)&&f!=='pdf'){dlShow(c,nm,f);return}let dl=null;try{dl=await claude.use('downloads')}catch(e){}
  if(dl){try{let data;if(f==='pdf'){if(!window.jspdf)throw 0;const d=new jspdf.jsPDF({unit:'px',format:[c.width,c.height],orientation:c.width>c.height?'landscape':'portrait'});d.addImage(c.toDataURL('image/jpeg',.92),'JPEG',0,0,c.width,c.height);data=d.output('arraybuffer')}else data=await new Promise(r=>c.toBlob(r,f==='png'?'image/png':'image/jpeg',.92));await dl.save({filename:nm+'.'+f,data});toast('সেভ হয়েছে! 🎉');return}catch(e){if(e&&(e.code==='declined'||e.code==='rate_limited'))return}}
  if(f==='pdf')toast('এখানে PDF হচ্ছে না, ছবি সেভ করে নাও');dlShow(c,nm,f==='pdf'?'png':f)}
-exp=async function(f){deliver(card(),f,'amar-bangladesh-bhromon')};
-saveC=(c,f,nm)=>deliver(c,f,nm);
+exp=async function(f){try{await deliver(card(),f,'amar-bangladesh-bhromon')}catch(e){toast('কার্ড বানানো যায়নি: '+(e&&e.message||e))}};
+saveC=async(c,f,nm)=>{try{await deliver(c,f,nm)}catch(e){toast('ডাউনলোড হয়নি: '+(e&&e.message||e))}};
 addEventListener('hashchange',route);route();
 </script></body></html>
