@@ -179,7 +179,9 @@ footer{text-align:center;color:var(--mute);padding:10px 16px 30px;font-size:13px
      created_at timestamptz default now()
   4) Paste your Project URL and Publishable/Anon key below.
 */
-const SUPABASE_URL = "https://ltxsgcevgkizxcrkbnzt.supabase.co";
+const SUPABASE_ORIGIN = "https://ltxsgcevgkizxcrkbnzt.supabase.co";
+// Browser talks to Vercel on the same origin; Vercel rewrites /supa/* to Supabase.
+const SUPABASE_URL = window.location.origin + "/supa";
 const SUPABASE_KEY = "sb_publishable_mIefH3lj1INSlphjlRrvGQ_mUywJ6yV";
 const supabaseClient =
   (SUPABASE_URL && SUPABASE_KEY && window.supabase)
